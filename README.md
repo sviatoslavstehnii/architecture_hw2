@@ -1,60 +1,64 @@
-## Звіт
 
-Запущені 3 ноди
-![[Pasted image 20250225203523.png]]
+# Hazelcast Distributed Systems Lab
 
+## Overview  
+This lab demonstrates the use of Hazelcast for distributed computing with Python. It includes examples of distributed maps, queues, and concurrency control using optimistic and pessimistic locking. The Hazelcast node is run via console commands, and the Python client interacts with it.
 
-Записуємо значення в  *my-distributed-map* від 0 до 1000, використовуючи *python client*.
-![[Screenshot from 2025-02-25 20-08-23 1.png]]
+## Setup  
 
+### 1. Install Dependencies  
+Create a virtual environment and install Hazelcast's Python client:  
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows, use venv\Scripts\activate
+pip install hazelcast-python-client
+```
 
-Початковий розподіл даних по нодах. Бачимо в сумі 100, всюди +- порівну.
-![[Screenshot from 2025-02-25 20-08-41 1.png]]
+### 2. Start Hazelcast Node  
+Run the Hazelcast node using the provided configuration file:  
+```bash
+hz start --config=hazelcast.xml
+```
 
+## Files Description  
 
-Відключаємо 1 ноду.
-![[Screenshot from 2025-02-25 20-09-20 1.png]]
+- **`hazelcast.xml`** - Configuration file for the Hazelcast cluster.  
+- **`distributed_map.py`** - Demonstrates how to use a Hazelcast distributed map in Python.  
+- **`increment.py`** - Basic example of distributed counter incrementing.  
+- **`optimistic_lock_increment.py`** - Implements optimistic locking while updating shared data.  
+- **`pessimistic_lock_increment.py`** - Demonstrates pessimistic locking in a distributed system.  
+- **`queue_put.py`** - Adds items to a Hazelcast distributed queue.  
+- **`queue_get.py`** - Retrieves items from the distributed queue.  
 
-Бачимо результат, що наші дані не втратилися, але тепер розподіл по 500 на одну ноду.
-![[Screenshot from 2025-02-25 20-09-30.png]]
+## Running Examples  
 
-Після вимкнення ще однієї ноди бачимо, що тепер всі дані на залишковій ноді.
-![[Screenshot from 2025-02-25 20-10-03.png]]
+After starting the Hazelcast node, you can run the Python scripts to interact with it:  
 
-Спробуємо відключити одночасно дві ноди, для цього знайду їхні PID та зупиню процеси.
-![[Screenshot from 2025-02-25 20-14-32.png]]
+### Distributed Map  
+```bash
+python distributed_map.py
+```
 
-Дані втрачено.
-![[Screenshot from 2025-02-25 20-14-43.png]]
+### Queue Operations  
+Put an item in the queue:  
+```bash
+python queue_put.py
+```
+Get an item from the queue:  
+```bash
+python queue_get.py
+```
 
+### Concurrency Control  
+Optimistic Locking:  
+```bash
+python optimistic_lock_increment.py
+```
+Pessimistic Locking:  
+```bash
+python pessimistic_lock_increment.py
+```
 
-Використовуючи 3 клієнти, збільшу значення ключа "counter" по 10 тисяч разів. Without locks.
-![[Pasted image 20250225204424.png]]
-
-Фінальний результат далеко не очікуваних 30 тисяч.
-![[Screenshot from 2025-02-25 20-21-15.png]]
-
-
-Те саме, але з використанням песимітичного блокування, працює в рази довше.
-![[Screenshot from 2025-02-25 20-24-53.png]]
-
-Проте фінальний результат правильний. З минулого разу додалося 30 тисяч (було 14489).
-![[Screenshot from 2025-02-25 20-25-25.png]]
-
-Оптимістичне блокування працює навіть швидше ніж без блокувань.
-![[Screenshot from 2025-02-25 20-32-24.png]]
-
-І результат також правильний.
-![[Screenshot from 2025-02-25 20-32-36.png]]
-
-Для того, аби створити обмежену чергу додаму в конфігураційний файл це
-![[Pasted image 20250226113548.png]]
-
-Спробуємо наповнити нашу чергу через клієнта. Бачимо, що більше 10 елементів не вдається запхати.
-
-![[Pasted image 20250226113822.png]]
-
-
-Запустимо два скрипти для читання з черги. Бачимо, що немає певного правила як будуть зчитуватися елементи, просто "коли, хто встигне".
-![[Pasted image 20250226114044.png]]
-
+## Notes  
+- Ensure that the Hazelcast node is running before executing the scripts.  
+- The Python client connects to the node automatically based on the `hazelcast.xml` configuration.  
